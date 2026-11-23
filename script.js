@@ -4,7 +4,7 @@ let tasks = [
   { id: 3, text: "Test Three", done: false },
 ];
 const list = document.getElementById("task-list");
-
+let editingId = null;
 function render() {
   list.innerHTML = "";
 
@@ -14,6 +14,31 @@ function render() {
       li.classList.add("done");
     }
 
+    // Edit mode: show a text box instead of the normal row
+    if (task.id === editingId) {
+      const editInput = document.createElement("input");
+      editInput.type = "text";
+      editInput.value = task.text;
+      editInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          const newText = editInput.value.trim();
+          if (newText !== "") {
+            task.text = newText;
+          }
+          editingId = null;
+          render();
+        } else if (event.key === "Escape") {
+          editingId = null;
+          render();
+        }
+      });
+      li.appendChild(editInput);
+      list.appendChild(li);
+      editInput.focus();
+      return;
+    }
+
+    // Normal mode
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.checked = task.done;
@@ -25,6 +50,13 @@ function render() {
     const span = document.createElement("span");
     span.textContent = task.text;
 
+    const editBtn = document.createElement("button");
+    editBtn.textContent = "Edit";
+    editBtn.addEventListener("click", () => {
+      editingId = task.id;
+      render();
+    });
+
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "Delete";
     deleteBtn.addEventListener("click", () => {
@@ -34,6 +66,7 @@ function render() {
 
     li.appendChild(checkbox);
     li.appendChild(span);
+    li.appendChild(editBtn);
     li.appendChild(deleteBtn);
     list.appendChild(li);
   });
